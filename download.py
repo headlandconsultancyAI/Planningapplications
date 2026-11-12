@@ -107,12 +107,20 @@ async def main():
             if len(rows) != 1109:
                 print('WARNING: count differs; review manifest and portal pagination before any downloads.')
         except Exception:
-            await page.screenshot(path=str(out / 'diagnostic.png'), full_page=True)
+try:
+    await page.screenshot(
+        path=str(out / "diagnostic.png"),
+        full_page=False,
+        animations="disabled",
+        timeout=10000
+    )
+    print("Diagnostic screenshot saved.")
+except Exception as e:
+    print(f"Screenshot skipped: {e}")
+
             (out / 'diagnostic.html').write_text(await page.content(), encoding='utf-8')
             raise
         finally:
             await browser.close()
-
-
 if __name__ == '__main__':
     asyncio.run(main())
