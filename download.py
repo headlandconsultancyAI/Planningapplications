@@ -47,7 +47,30 @@ async def extract_rows(page, page_number):
 
 
 async def inventory(page, out, max_pages):
-    await page.goto(URL, wait_until='domcontentloaded', timeout=60000)
+    
+print(f"Navigating to: {URL}")
+
+try:
+    response = await page.goto(
+        URL,
+        wait_until="commit",
+        timeout=30000
+    )
+
+    print(f"Current URL: {page.url}")
+    print(f"HTTP status: {response.status if response else 'No response'}")
+
+    await page.wait_for_load_state(
+        "domcontentloaded",
+        timeout=15000
+    )
+
+except Exception as e:
+    print(f"Navigation diagnostic: {type(e).__name__}: {e}")
+    print(f"Current URL: {page.url}")
+    raise
+
+    
     await page.wait_for_timeout(1200)
     seen = set()
     rows = []
