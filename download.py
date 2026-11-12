@@ -106,21 +106,30 @@ async def main():
             print(f'Inventory complete: {len(rows)} rows; expected 1109 (screenshot, may change).')
             if len(rows) != 1109:
                 print('WARNING: count differs; review manifest and portal pagination before any downloads.')
-        except Exception:
-try:
-    await page.screenshot(
-        path=str(out / "diagnostic.png"),
-        full_page=False,
-        animations="disabled",
-        timeout=10000
-    )
-    print("Diagnostic screenshot saved.")
-except Exception as e:
-    print(f"Screenshot skipped: {e}")
+        except Exception as error:
+            print(f'Discovery failed: {error}', flush=True)
+            try:
+                await page.screenshot(
+                    path=str(out / 'diagnostic.png'),
+                    full_page=False,
+                    animations='disabled',
+                    timeout=10000,
+                )
+                print('Diagnostic screenshot saved.', flush=True)
+            except Exception as screenshot_error:
+                print(f'Screenshot skipped: {screenshot_error}', flush=True)
 
-            (out / 'diagnostic.html').write_text(await page.content(), encoding='utf-8')
+            try:
+                html = await page.content()
+                (out / 'diagnostic.html').write_text(html, encoding='utf-8')
+                print(f'HTML saved: {len(html)} characters', flush=True)
+                print(f'Current URL: {page.url}', flush=True)
+            except Exception as html_error:
+                print(f'Could not save HTML: {html_error}', flush=True)
             raise
         finally:
             await browser.close()
+
+
 if __name__ == '__main__':
     asyncio.run(main())
